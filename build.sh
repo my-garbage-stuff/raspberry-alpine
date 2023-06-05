@@ -124,6 +124,8 @@ chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "apk add kmod networ
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add dbus"
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add networkmanager"
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add udev"
+chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add udev-trigger"
+chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add udev-settle"
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add sshd"
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add swclock"
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add hwclock"
