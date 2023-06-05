@@ -104,10 +104,11 @@ arm_boost=1
 EOF
 ##### create rootfs
 uri=$(wget -O - https://dl-cdn.alpinelinux.org/alpine/edge/releases/aarch64/ | grep -v "sha" | grep "alpine-minirootfs" | sort -V | tail -n 1 | cut -f2 -d"\"")
-wget -O alpine.tar.gz https://dl-cdn.alpinelinux.org/alpine/edge/releases/aarch64/$uri
-cd rootfs
-tar -xf ../alpine.tar.gz
-cd ..
+wget -O $uri https://dl-cdn.alpinelinux.org/alpine/edge/releases/aarch64/$uri
+mkdir -p work/rootfs
+cd work/rootfs
+tar -xf ../../$uri
+cd ../..
 ##### copy qemu-aarch64-static
 cp $(which qemu-aarch64-static) work/rootfs/usr/bin/qemu-aarch64-static
 if which service ; then
