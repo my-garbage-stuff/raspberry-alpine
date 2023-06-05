@@ -129,6 +129,7 @@ chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "useradd user -m -U"
 echo -e "alpine\nalpine\n" | chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "passwd root"
 echo -e "alpine\nalpine\n" | chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "passwd user"
 find work/rootfs/var/log/ -type f | xargs rm -f
+chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "apk -v cache clean"
 for i in $(ls work/rootfs/lib/modules) ; do
     chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "depmod -a $i"
 done
