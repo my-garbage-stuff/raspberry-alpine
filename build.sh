@@ -128,8 +128,8 @@ chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add udev-
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add udev-settle"
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add sshd"
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add swclock"
-chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add hwclock"
 #### create default user
+chmod u+s work/rootfs/bin/su
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "useradd user -m -U"
 echo -e "alpine\nalpine\n" | chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "passwd root"
 echo -e "alpine\nalpine\n" | chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "passwd user"
