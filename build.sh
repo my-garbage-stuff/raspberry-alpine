@@ -116,11 +116,6 @@ if which service ; then
 fi
 #### Configure system
 echo "nameserver 1.1.1.1" > work/rootfs/etc/resolv.conf
-echo "APT::Sandbox::User root;" > work/rootfs/etc/apt/apt.conf.d/99sandboxroot
-cat > work/rootfs/etc/apt/apt.conf.d/01norecommend << EOF
-APT::Install-Recommends "0";
-APT::Install-Suggests "0";
-EOF
 ##### install firmware and packages
 mkdir -p work/rootfs/lib/modules/
 cp -rvf work/firmware-master/modules/* work/rootfs/lib/modules/
