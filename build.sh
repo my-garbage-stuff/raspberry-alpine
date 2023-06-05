@@ -1,10 +1,5 @@
 #!/bin/bash
 set -ex
-#### Define repository variable
-REPO="http://pkgmaster.devuan.org/merged"
-if [[ "$1" != "" ]] ; then
-    REPO="$1"
-fi
 #### install required packages if host debian
 if [[ -d /var/lib/apt/ ]] ; then
     apt update
@@ -108,7 +103,12 @@ arm_boost=1
 
 EOF
 ##### create rootfs
-[[ -f work/rootfs/etc/os-release ]] || debootstrap --foreign --no-check-gpg --no-merged-usr --variant=minbase --arch=arm64 stable work/rootfs "$REPO"
+uri=$(wget -O - https://dl-cdn.alpinelinux.org/alpine/edge/releases/aarch64/ | grep -v "sha" | grep "alpine-minirootfs" | sort -V | tail -n 1 | cut -f2 -d"\"")
+wget -O alpine.tar.gz https://dl-cdn.alpinelinux.org/alpine/edge/releases/aarch64/$uri
+mkdir rootfs
+cd rootfs
+tar -xf ../alpine.tar.gz
+cd ..
 ##### copy qemu-aarch64-static
 cp $(which qemu-aarch64-static) work/rootfs/usr/bin/qemu-aarch64-static
 if which service ; then
@@ -121,34 +121,31 @@ cat > work/rootfs/etc/apt/apt.conf.d/01norecommend << EOF
 APT::Install-Recommends "0";
 APT::Install-Suggests "0";
 EOF
-[[ ! -f work/rootfs/debootstrap/debootstrap ]] || chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/bash /debootstrap/debootstrap --second-stage
-chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/bash -c "apt install devuan-keyring kmod -y"
 ##### install firmware and packages
 mkdir -p work/rootfs/lib/modules/
 cp -rvf work/firmware-master/modules/* work/rootfs/lib/modules/
-echo "deb $REPO stable main contrib non-free" > work/rootfs/etc/apt/sources.list
-chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/bash -c "apt update"
-chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/bash -c "apt install ntp network-manager openssh-server -y"
-chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/bash -c "apt install firmware-linux -y"
-chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/bash -c "apt clean"
+chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "apk update"
+chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "apk add linux-firmware kmod networkmanager eudev dbus"
+rc-update add dbus
+rc-update add networkmanager
+rc-update add udev
 #### create default user
-chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/bash -c "useradd user -m -U"
-echo -e "devuan\ndevuan\n" | chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/bash -c "passwd root"
-echo -e "devuan\ndevuan\n" | chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/bash -c "passwd user"
+chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "useradd user -m -U"
+echo -e "alpine\nalpine\n" | chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "passwd root"
+echo -e "alpine\nalpine\n" | chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "passwd user"
 find work/rootfs/var/log/ -type f | xargs rm -f
-rm -rf work/rootfs/var/lib/apt/lists/*
 for i in $(ls work/rootfs/lib/modules) ; do
-    chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/bash -c "depmod -a $i"
+    chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "depmod -a $i"
 done
 #### create image and partitons
 size=$(du -s "work/rootfs" | cut -f 1)
-qemu-img create "devuan.img" $(($size*1080+(600*1024*1024)))
-parted "devuan.img" mklabel msdos
-echo Ignore | parted "devuan.img" mkpart primary fat32 0 300M 
-echo Ignore | parted "devuan.img" mkpart primary ext2 301M 100%
+qemu-img create "alpine.img" $(($size*1080+(600*1024*1024)))
+parted "alpine.img" mklabel msdos
+echo Ignore | parted "alpine.img" mkpart primary fat32 0 300M 
+echo Ignore | parted "alpine.img" mkpart primary ext2 301M 100%
 #### format image
 losetup -d /dev/loop0 || true
-loop=$(losetup --partscan --find --show "devuan.img" | grep "/dev/loop")
+loop=$(losetup --partscan --find --show "alpine.img" | grep "/dev/loop")
 mkfs.vfat ${loop}p1
 yes | mkfs.ext4 ${loop}p2 -L "ROOTFS"
 #### copy boot partition
@@ -161,5 +158,5 @@ mount ${loop}p2 /mnt
 cp -prfv work/rootfs/* /mnt/
 sync
 umount /mnt
-xz devuan.img
+xz alpine.img
 #### done
