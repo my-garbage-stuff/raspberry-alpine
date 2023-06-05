@@ -105,7 +105,6 @@ EOF
 ##### create rootfs
 uri=$(wget -O - https://dl-cdn.alpinelinux.org/alpine/edge/releases/aarch64/ | grep -v "sha" | grep "alpine-minirootfs" | sort -V | tail -n 1 | cut -f2 -d"\"")
 wget -O alpine.tar.gz https://dl-cdn.alpinelinux.org/alpine/edge/releases/aarch64/$uri
-mkdir rootfs
 cd rootfs
 tar -xf ../alpine.tar.gz
 cd ..
