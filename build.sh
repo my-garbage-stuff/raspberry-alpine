@@ -121,9 +121,9 @@ mkdir -p work/rootfs/lib/modules/
 cp -rvf work/firmware-master/modules/* work/rootfs/lib/modules/
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "apk update"
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "apk add linux-firmware kmod networkmanager eudev dbus openrc "
-rc-update add dbus
-rc-update add networkmanager
-rc-update add udev
+chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add dbus"
+chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add networkmanager"
+chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "rc-update add udev"
 #### create default user
 chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "useradd user -m -U"
 echo -e "alpine\nalpine\n" | chroot work/rootfs /usr/bin/qemu-aarch64-static /bin/ash -c "passwd root"
