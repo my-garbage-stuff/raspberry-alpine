@@ -17,9 +17,9 @@ jobs:
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "devuan"
+          automatic_release_tag: "alpine"
           prerelease: false
-          title: "Auto build devuan"
+          title: "Auto build alpine"
           files: |
             *.img
             *.img.xz
